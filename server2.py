@@ -15,7 +15,7 @@ class Server2:
     sock_port = socket.getpeername()[1]
     try:
       while True:
-        print("Receiving data...")
+        print(f"Receiving data from port {sock_port}...")
         data = socket.recv(1024)
 
         if data:
@@ -28,8 +28,13 @@ class Server2:
             print(f"GROUP 2: {match.group(2)}")
             msg = f"\nFROM {sock_port}: {data_str}".encode("utf-8")
 
-            if match.group(2) == "C": # P2P
-              self.clients[match.group(1)].sendall(msg)
+            if match.group(2) == "C": # direct message
+              print(f"Sending message from {sock_port} to {match.group(1)}")
+              port = match.group(1)[1:]
+              print(f"TARGET PORT: {port}")
+              print(self.clients)
+              print(self.clients[port])
+              self.clients[port].sendall(msg)
 
             elif match.group(2) == "B": # Broadcast
               for client in self.clients.values():
