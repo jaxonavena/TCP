@@ -6,6 +6,7 @@ class Server:
     self.address = address
 
   def boot(self):
+    print("Booting server...")
     self.sock = socket(family=AF_INET, type=SOCK_STREAM)
 
     try:
@@ -16,23 +17,25 @@ class Server:
       self.sock.listen(3)
 
 
-      print("Accepting connections...")
       while True:
+        print("Accepting connections...")
         conn, client_address = self.sock.accept()
 
         try:
           print(f"Connection at {client_address}")
           print("Receiving data...")
           data = conn.recv(1024) # bufsize[, flags]
-          print(f"\nData:\n\n{data}")
+          print(f"\n\n{data.decode("utf-8")}\n")
 
           if data:
+            data = f"ECHO: {data.decode("utf-8")}".encode("utf-8")
             conn.sendall(data)
           else:
-            print(f"{client_address}")
+            print(f"Goodbye {client_address}!")
             break # close connection
 
         finally:
+          print("Closing the connection...")
           conn.close()
 
 
