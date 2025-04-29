@@ -1,4 +1,5 @@
 from socket import socket, AF_INET, SOCK_STREAM
+import time
 
 class Client:
   def __init__(self, server_address):
@@ -8,18 +9,33 @@ class Client:
   def start(self):
     print("Starting client...")
     self.sock = socket(family=AF_INET, type=SOCK_STREAM)
+    time.sleep(2)
 
     try:
       print("Connecting to server...")
       self.sock.connect(self.server_address)
 
-      print("Sending data...")
-      data = "Jaxon wuz here".encode('utf-8')
-      self.sock.sendall(data)
+      while True:
 
-      print("Receiving data...")
-      data = self.sock.recv(1024)
-      print(f"\n{data.decode("utf-8")}\n")
+
+        print("Sending data...")
+
+        msg = input("\nSend message: ").encode('utf-8')
+        if msg:
+          self.sock.sendall(msg)
+
+          print("Receiving data...")
+          data = self.sock.recv(1024)
+          if data:
+            print(f"\n{data.decode("utf-8")}\n")
+          else:
+            print("Transmission complete...")
+        else:
+          quit = input("Quit? (y/n): ")
+          if quit == "y":
+            self.sock.sendall("quit123".encode('utf-8'))
+            break
+
     except:
       print("Failed!")
     finally:

@@ -16,31 +16,24 @@ class Server:
       print("Listening...")
       self.sock.listen(3)
 
+      print("Accepting connections...")
+      conn, client_address = self.sock.accept()
 
       while True:
-        print("Accepting connections...")
-        conn, client_address = self.sock.accept()
+        print(f"Connection at {client_address}")
+        print("Receiving data...")
+        data = conn.recv(1024) # bufsize[, flags]
+        print(f"\n\n{data.decode("utf-8")}\n")
 
-        try:
-          print(f"Connection at {client_address}")
-          print("Receiving data...")
-          data = conn.recv(1024) # bufsize[, flags]
-          print(f"\n\n{data.decode("utf-8")}\n")
+        if data:
+          data = f"ECHO: {data.decode("utf-8")}".encode("utf-8")
+          conn.sendall(data)
 
-          if data:
-            data = f"ECHO: {data.decode("utf-8")}".encode("utf-8")
-            conn.sendall(data)
-          else:
-            print(f"Goodbye {client_address}!")
-            break # close connection
+          if data.decode("utf-8") == "quit123":
+            break
 
-        finally:
-          print("Closing the connection...")
-          conn.close()
-
-
-      print("Success!")
     except:
       print("Failed.")
     finally:
+      print("Closing the connection...")
       self.sock.close()
