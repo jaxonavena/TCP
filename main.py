@@ -17,8 +17,12 @@ SERVER_ADDRESS = ("127.0.0.1", 1738)
 
 def main():
   print("Starting program...")
+
+  print("Booting server...")
   server = Server(SERVER_ADDRESS)
   server.boot()
+
+
 
 if __name__ == "__main__":
   main()
