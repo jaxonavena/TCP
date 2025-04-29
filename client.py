@@ -5,6 +5,7 @@ class Client:
   def __init__(self, server_address):
     self.sock = None
     self.server_address = server_address
+    self.buddies = []
 
   def start(self):
     print("Starting client...")
@@ -23,12 +24,13 @@ class Client:
           data = self.sock.recv(1024)
           if data:
             print(f"\n{data.decode("utf-8")}\n")
-
         else:
-          quit = input("Quit? (y/n): ")
-          if quit == "y":
-            self.sock.sendall(msg)
+          choice = input("Quit? (q) - List Clients? (c): ")
+          if choice == "q":
             break
+          elif choice == "c":
+            print("NOT FUNCTIONING YET")
+            print(self.buddies)
 
     except Exception as e:
       print(f"ERROR -- ${e}")
