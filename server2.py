@@ -12,57 +12,53 @@ class Server2:
     self.clients = {}
 
   def handle_client(self, socket, address):
+    print("---------------------------------------------------")
     print(f"Handling client at address ${address}")
-    print(f"CLIENT ADDY: {socket}")
-    print(f"CONN PEER NAME: {address[1]}")
     sock_port = address[1]
-    print(f"SOCK PORT TYPE IS: {type(sock_port)}")
-    print("ADDING SOCKET TO CLIENT LIST...")
     self.clients[sock_port] = socket
-    print("ADDED")
-    print(self.clients)
-    print(self.clients[sock_port])
-    print("------")
 
     try:
       while True:
-        print(f"Receiving data from port {sock_port}...")
+        # print(f"Receiving data from port {sock_port}...")
         data = socket.recv(1024)
 
         if data:
           data_str = data.decode("utf-8")
-          print(f"{data_str}\n")
           match = re.match(r"(([CB])\d*)-(.*)", data_str)
 
           if match:
-            print(f"GROUP 1: {match.group(1)}")
-            print(f"GROUP 2: {match.group(2)}")
-            print(f"GROUP 3: {match.group(3)}")
-
-            msg = f"\nFROM {sock_port}: {match.group(3)}".encode("utf-8")
-
+            # print(f"GROUP 1: {match.group(1)}") # -> C12345
+            # print(f"GROUP 2: {match.group(2)}") # -> C or B
+            # print(f"GROUP 3: {match.group(3)}") # -> msg_content
+            msg = match.group(3)
             if match.group(2) == "C": # direct message
               print("-------------")
-              print(f"Sending message from {sock_port} to {match.group(1)}")
-              port = int(match.group(1)[1:])
-              print(f"TARGET PORT: {port}")
-              print(self.clients)
-              print(self.clients[port])
-              self.clients[port].sendall(msg)
-              print("SENT!")
-              print("-------------")
-
+              print(f"Sending message from {sock_port} to {match.group(1)}: {msg}")
+              target_port = int(match.group(1)[1:])
+              self.clients[target_port].sendall(f"FROM {sock_port}: {match.group(3)}".encode("utf-8"))
+              socket.sendall(f"Message sent to C{target_port}".encode("utf-8"))
+              print("DM SENT!")
+              print("-------------\n\n")
 
             elif match.group(2) == "B": # Broadcast
+              print("-------------")
+              print(f"Broadcasting message from {sock_port}: {msg}")
+
               for client in self.clients.values():
                 if client.getpeername()[1] == sock_port:
                   client.sendall("Broadcasting...".encode("utf-8"))
                 else:
-                  client.sendall(msg)
+                  client.sendall(f"BROADCASTED FROM {sock_port}: {msg}".encode("utf-8"))
+
+              print("BROADCAST SENT!")
+              print("-------------\n\n")
 
           else: # Talking to themselves
-            msg = f"ECHO: {data_str}".encode("utf-8")
-            socket.sendall(msg)
+            print("-------------")
+            print(f"ECHO message from {sock_port}: {data_str}")
+            socket.sendall(f"ECHO: {data_str}".encode("utf-8"))
+            print("ECHO SENT!")
+            print("-------------\n\n")
         else:
           break
 
@@ -89,6 +85,7 @@ class Server2:
       while True:
         print("Accepting connections...")
         conn, client_address = self.sock.accept()
+
         t = threading.Thread(target=self.handle_client, args=(conn, client_address), name=f"T{i}-{client_address[1]}")
         print(f"\nNEW THREAD: {t.name}")
         t.start()
