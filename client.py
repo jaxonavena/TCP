@@ -10,7 +10,6 @@ class Client:
     try:
       while True:
         data = self.sock.recv(1024).decode("utf-8")
-        # print("Receiving data...")
         if data:
           print(f"\n{data}\n")
         else:
@@ -22,6 +21,24 @@ class Client:
       print("Closing my socket...")
       self.sock.close()
 
+  def start_listening(self):
+    t = threading.Thread(target=self.get_msgs, name=f"T-{self.sock.getsockname()[1]}")
+    t.daemon = True
+    t.start()
+    print(f"\nNEW THREAD: {t.name}")
+
+  def get_input(self):
+    print("You can now send messages...")
+    while True:
+      msg = input(" ").encode('utf-8')
+      if msg:
+        self.sock.sendall(msg)
+      else:
+        choice = input("Quit? (y/n): ")
+        if choice == "y":
+          break
+
+
   def start(self):
     print("Starting client...")
     self.sock = socket(family=AF_INET, type=SOCK_STREAM)
@@ -29,24 +46,11 @@ class Client:
     try:
       print("Connecting to server...")
       self.sock.connect(self.server_address)
+      self.start_listening()
+      self.get_input()
 
-      t = threading.Thread(target=self.get_msgs, name=f"T-{self.sock.getsockname()[1]}")
-      t.daemon = True
-      t.start()
-      print(f"\nNEW THREAD: {t.name}")
-      print("You can now send messages...")
-
-      while True:
-        msg = input(" ").encode('utf-8')
-        if msg:
-          self.sock.sendall(msg)
-        else:
-          choice = input("Quit? (y/n): ")
-          if choice == "y":
-            break
     except Exception as e:
-      print(f"ERROR -- ${e}")
-      self.sock.close()
+      print(f"ERROR -- {e}")
     finally:
       print("Bye!")
       self.sock.close()

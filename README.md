@@ -1,6 +1,6 @@
 # TCP
 
-This is a simple TCP server/client messaging practice project. There are two versions of the server, the latest and greatest being `Server2`. 
+This is a simple TCP server/client messaging practice project. There are two versions of the server, the latest and greatest being `Server2`.
 
 `Server2` supports multiple clients using Python's socket and threading modules. The original (`Server`) only supports one client that can only echo messages to itself.
 
