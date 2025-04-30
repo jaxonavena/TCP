@@ -1,6 +1,5 @@
 from socket import socket, AF_INET, SOCK_STREAM
 import threading
-import time
 
 class Client:
   def __init__(self, server_address):
@@ -21,6 +20,7 @@ class Client:
     except Exception as e:
       print(f"ERROR -- get_msgs() : {e}")
     finally:
+      print("Closing my socket...")
       self.sock.close()
 
   def start(self):
