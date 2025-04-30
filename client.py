@@ -16,7 +16,8 @@ class Client:
           print("Server disconnected!")
           break
     except Exception as e:
-      print(f"ERROR -- get_msgs() : {e}")
+      # print(f"ERROR -- get_msgs() : {e}")
+      pass # Silently kill thread
     finally:
       print("Closing my socket...")
       self.sock.close()
@@ -29,15 +30,19 @@ class Client:
 
   def get_input(self):
     print("You can now send messages...")
-    while True:
-      msg = input(" ").encode('utf-8')
-      if msg:
-        self.sock.sendall(msg)
-      else:
-        choice = input("Quit? (y/n): ")
-        if choice == "y":
-          break
-
+    try:
+      while True:
+        msg = input(" ").encode('utf-8')
+        if msg:
+          self.sock.sendall(msg)
+        else:
+          choice = input("Quit? (y/n): ")
+          if choice == "y":
+            break
+          else:
+            print("You can now send messages... again...")
+    except KeyboardInterrupt:
+      print("") # Hide traceback
 
   def start(self):
     print("Starting client...")

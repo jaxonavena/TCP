@@ -11,15 +11,49 @@ class Server2:
     self.address = address
     self.clients = {}
 
-  def handle_client(self, socket, address):
+  def direct_message(self, sock, sender_port, receiver_port, msg):
+    print("-------------")
+    print(f"Sending message from {sender_port} to {receiver_port}: {msg}")
+
+    target_port = int(receiver_port[1:])
+    if target_port in self.clients:
+      self.clients[target_port].sendall(f"FROM {sender_port}: {msg}".encode("utf-8"))
+      sock.sendall(f"Message sent to C{target_port}".encode("utf-8"))
+    else:
+      sock.sendall(f"Cannot send message to C{target_port}. They aren't connected to the server!".encode("utf-8"))
+
+    print("DM SENT!")
+    print("-------------\n\n")
+
+  def broadcast_message(self, sender_port, msg):
+    print("-------------")
+    print(f"Broadcasting message from C{sender_port}: {msg}")
+
+    for client in self.clients.values():
+      if client.getpeername()[1] == sender_port:
+        client.sendall("Broadcasting...".encode("utf-8"))
+      else:
+        client.sendall(f"BROADCASTED FROM C{sender_port}: {msg}".encode("utf-8"))
+
+    print("BROADCAST SENT!")
+    print("-------------\n\n")
+
+  def echo_message(self, sock, port, msg):
+    print("-------------")
+    print(f"Echo message from {port}: {msg}")
+    sock.sendall(f"ECHO: {msg}".encode("utf-8"))
+    print("ECHO SENT!")
+    print("-------------\n\n")
+
+  def handle_client(self, sock, address):
     print("---------------------------------------------------")
     print(f"Handling client at address {address}")
     sock_port = address[1]
-    self.clients[sock_port] = socket # track this client
+    self.clients[sock_port] = sock # track this client
 
     try:
       while True:
-        data = socket.recv(1024)
+        data = sock.recv(1024)
 
         if data:
           data_str = data.decode("utf-8")
@@ -33,36 +67,16 @@ class Server2:
 
             # DIRECT MESSAGE
             if match.group(2) == "C":
-              print("-------------")
-              print(f"Sending message from {sock_port} to {match.group(1)}: {msg}")
-              target_port = int(match.group(1)[1:])
-              if target_port in self.clients:
-                self.clients[target_port].sendall(f"FROM {sock_port}: {msg}".encode("utf-8"))
-                socket.sendall(f"Message sent to C{target_port}".encode("utf-8"))
-              print("DM SENT!")
-              print("-------------\n\n")
+              self.direct_message(sock, sock_port, match.group(1), msg)
 
             # BROADCAST
             elif match.group(2) == "B":
-              print("-------------")
-              print(f"Broadcasting message from C{sock_port}: {msg}")
-
-              for client in self.clients.values():
-                if client.getpeername()[1] == sock_port:
-                  client.sendall("Broadcasting...".encode("utf-8"))
-                else:
-                  client.sendall(f"BROADCASTED FROM C{sock_port}: {msg}".encode("utf-8"))
-
-              print("BROADCAST SENT!")
-              print("-------------\n\n")
+              self.broadcast_message(sock_port, msg)
 
           # ECHO
           else:
-            print("-------------")
-            print(f"Echo message from {sock_port}: {data_str}")
-            socket.sendall(f"ECHO: {data_str}".encode("utf-8"))
-            print("ECHO SENT!")
-            print("-------------\n\n")
+            self.echo_message(sock, sock_port, data_str)
+
         else:
           break
 
@@ -72,7 +86,7 @@ class Server2:
     finally:
       print(f"Closing client socket at port {sock_port}...")
       del self.clients[sock_port] # removing from list of active clients
-      socket.close()
+      sock.close()
 
   def accept_clients(self):
     i = 1
