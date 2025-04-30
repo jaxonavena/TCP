@@ -17,7 +17,7 @@ class Client:
           break
     except Exception as e:
       # print(f"ERROR -- get_msgs() : {e}")
-      pass # Silently kill thread
+      pass
     finally:
       print("Closing my socket...")
       self.sock.close()

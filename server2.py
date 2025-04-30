@@ -90,14 +90,18 @@ class Server2:
 
   def accept_clients(self):
     i = 1
-    while True:
-      print("Accepting connections...")
-      conn, client_address = self.sock.accept()
+    try:
+      while True:
+        print("Accepting connections...")
+        conn, client_address = self.sock.accept()
 
-      t = threading.Thread(target=self.handle_client, args=(conn, client_address), name=f"T{i}-{client_address[1]}")
-      print(f"\nNEW THREAD: {t.name}")
-      t.start()
-      i += 1
+        t = threading.Thread(target=self.handle_client, args=(conn, client_address), name=f"T{i}-{client_address[1]}")
+        print(f"\nNEW THREAD: {t.name}")
+        t.daemon = True
+        t.start()
+        i += 1
+    except KeyboardInterrupt:
+      print("") # hide traceback
 
   def boot(self):
     print("Booting server...")
