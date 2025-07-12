@@ -24,10 +24,10 @@ class Server:
       while True:
         print("Receiving data:")
         data = conn.recv(1024) # bufsize[, flags]
-        print(f"{data.decode("utf-8")}\n")
+        print(f"{data.decode('utf-8')}\n")
 
         if data:
-          data = f"ECHO: {data.decode("utf-8")}".encode("utf-8")
+          data = f"ECHO: {data.decode('utf-8')}".encode("utf-8")
           conn.sendall(data)
 
           if data.decode("utf-8") == "quit123":
