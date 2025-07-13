@@ -17,3 +17,6 @@ There are three different ways a client can send a message with `Server2`:
 - Send an empty message to be prompted to quit
 
 ### Server3 (extends Server2)
+- Send an empty message to be presented with options like creating a nickname for yourself or quitting
+- You can DM via nickname as if it were `C<port num>`. For instance, if the client associated with `C12345` created a nickname for themselves, `Jaxon`, then users could DM them via `C12345- message` or `Jaxon- message`
+- Due to the messages being encrypted now, users interested in messaging on a server must obtain the server's automatically generated `Secret Key`, and place that in a `.env` file they create in their `TCP` project directory. Use `.env-example` as a scaffold for `.env`, and fill in the `SECRET_KEY` environment variable with the server's `Secret Key`. This will allow messages to be properly interpreted.
