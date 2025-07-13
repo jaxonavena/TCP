@@ -41,10 +41,9 @@ class Client:
         msg = input(" ")
         if msg:
           self.send(msg)
-          # self.sock.sendall(msg)
         else:
 
-          choice = input("Options:\n1: Quit\n2: Set Your Nickname\n3: List Clients")
+          choice = input("Options:\n1: Quit\n2: Set Your Nickname\n3: List Clients\n")
           if not choice:
             print("You can now send messages... again...")
           else:
@@ -58,10 +57,8 @@ class Client:
             elif choice == 2:
               nickname = input("What do you want to be called?: ")
               self.send(f"O- Set My Nickname: {nickname}")
-              # self.sock.sendall(f"O- Set My Nickname: {nickname}".encode('utf-8'))
             elif choice == 3:
               self.send("O- List Clients")
-              # self.sock.sendall("O- List Clients".encode('utf-8'))
     except KeyboardInterrupt:
       print("") # Hide traceback
 
@@ -83,5 +80,4 @@ class Client:
     finally:
       print("Bye!")
       self.send("O- Cleanup")
-      # self.sock.sendall("O- Cleanup".encode('utf-8'))
       self.sock.close()
